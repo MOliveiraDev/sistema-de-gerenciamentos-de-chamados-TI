@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface SolicitanteRepository extends JpaRepository<SolicitanteEntity, Integer> {
 
-    Optional<SolicitanteEntity> findByUsuario_Id(Integer usuarioId);
+    Optional<SolicitanteEntity> findByUsuarioEntity_Id(Integer usuarioId);
 }
 
