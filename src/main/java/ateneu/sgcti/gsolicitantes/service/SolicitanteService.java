@@ -93,16 +93,16 @@ public class SolicitanteService {
     }
 
     private void validarCamposObrigatorios(SolicitanteRequest request, boolean senhaObrigatoria) {
-        validarTexto(request.nome(), "nome");
-        validarTexto(request.email(), "email");
-        validarTexto(request.setor(), "setor");
-        validarTexto(request.telefone(), "telefone");
+        validarCampo(request.nome(), "nome");
+        validarCampo(request.email(), "email");
+        validarCampo(request.setor(), "setor");
+        validarCampo(request.telefone(), "telefone");
         if (senhaObrigatoria) {
-            validarTexto(request.senha(), "senha");
+            validarCampo(request.senha(), "senha");
         }
     }
 
-    private void validarTexto(String valor, String campo) {
+    private void validarCampo(String valor, String campo) {
         if (!StringUtils.hasText(valor)) {
             throw new SolicitanteBusinessException("O campo '" + campo + "' é obrigatório.");
         }

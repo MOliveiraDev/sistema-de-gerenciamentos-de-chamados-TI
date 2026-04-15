@@ -47,7 +47,7 @@ public class SolicitanteController {
     @DeleteMapping("/{id}/deletar")
     public ResponseEntity<Void> excluir(@PathVariable Integer id) {
         solicitanteService.excluir(id);
-        return ResponseEntity.noContent().build();
+        return null;
     }
 }
 

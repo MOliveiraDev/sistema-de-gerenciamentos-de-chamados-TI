@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface TecnicoRepository extends JpaRepository<TecnicoEntity, Integer> {
 
-    Optional<TecnicoEntity> findByUsuario_Id(Integer usuarioId);
+    Optional<TecnicoEntity> findByUsuarioEntity_Id(Integer usuarioId);
 
     Optional<TecnicoEntity> findByCpf(String cpf);
 }

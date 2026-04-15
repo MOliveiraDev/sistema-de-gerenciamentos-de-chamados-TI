@@ -7,12 +7,14 @@ import java.util.List;
 
 public interface ChamadoRepository extends JpaRepository<ChamadoEntity, Integer> {
 
-    List<ChamadoEntity> findBySolicitante_Id(Integer solicitanteId);
+    List<ChamadoEntity> findBySolicitanteEntity_Id(Integer solicitanteId);
 
-    List<ChamadoEntity> findByTecnico_Id(Integer tecnicoId);
+    List<ChamadoEntity> findByTecnicoEntity_Id(Integer tecnicoId);
 
     List<ChamadoEntity> findByStatus(String status);
 
     List<ChamadoEntity> findByPrioridade(String prioridade);
+
+    boolean existsBySolicitanteEntity_Id(Integer solicitanteId);
 }
 
