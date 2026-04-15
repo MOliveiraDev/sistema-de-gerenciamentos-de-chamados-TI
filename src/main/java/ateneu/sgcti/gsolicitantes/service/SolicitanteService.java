@@ -34,13 +34,10 @@ public class SolicitanteService {
 
     @Transactional(readOnly = true)
     public SolicitanteResponse buscarPorId(Integer id) {
-        return solicitanteRepository.findByUsuarioEntity_Id(id)
-                .map(this::toResponse)
-                .orElseThrow(() -> new SolicitanteNotFoundException(id));
+        return toResponse(buscarEntidadeOuFalha(id));
     }
 
     public SolicitanteResponse cadastrar(SolicitanteRequest request) {
-        validarCamposObrigatorios(request, true);
         validarEmailUnico(request.email(), null);
 
         UsuarioEntity usuario = new UsuarioEntity();
@@ -58,12 +55,7 @@ public class SolicitanteService {
     }
 
     public SolicitanteResponse atualizar(Integer id, SolicitanteRequest request) {
-
-        SolicitanteEntity solicitante = solicitanteRepository.findByUsuarioEntity_Id(id)
-                .orElseThrow(() -> new SolicitanteNotFoundException(id));
-
-        validarCamposObrigatorios(request, false);
-
+        SolicitanteEntity solicitante = buscarEntidadeOuFalha(id);
         UsuarioEntity usuario = solicitante.getUsuarioEntity();
 
         validarEmailUnico(request.email(), usuario.getId());
@@ -81,8 +73,7 @@ public class SolicitanteService {
     }
 
     public void excluir(Integer id) {
-        SolicitanteEntity solicitante = solicitanteRepository.findByUsuarioEntity_Id(id)
-                .orElseThrow(() -> new SolicitanteNotFoundException(id));
+        SolicitanteEntity solicitante = buscarEntidadeOuFalha(id);
 
         if (chamadoRepository.existsBySolicitanteEntity_Id(id)) {
             throw new SolicitanteBusinessException("Não é possível excluir o solicitante porque existem chamados vinculados.");
@@ -92,26 +83,15 @@ public class SolicitanteService {
         usuarioRepository.delete(solicitante.getUsuarioEntity());
     }
 
-    private void validarCamposObrigatorios(SolicitanteRequest request, boolean senhaObrigatoria) {
-        validarCampo(request.nome(), "nome");
-        validarCampo(request.email(), "email");
-        validarCampo(request.setor(), "setor");
-        validarCampo(request.telefone(), "telefone");
-        if (senhaObrigatoria) {
-            validarCampo(request.senha(), "senha");
-        }
-    }
-
-    private void validarCampo(String valor, String campo) {
-        if (!StringUtils.hasText(valor)) {
-            throw new SolicitanteBusinessException("O campo '" + campo + "' é obrigatório.");
-        }
+    private SolicitanteEntity buscarEntidadeOuFalha(Integer id) {
+        return solicitanteRepository.findById(id)
+                .orElseThrow(() -> new SolicitanteNotFoundException(id));
     }
 
     private void validarEmailUnico(String email, Integer usuarioIdAtual) {
         usuarioRepository.findByEmail(normalizar(email)).ifPresent(usuario -> {
             if (usuarioIdAtual == null || !usuarioIdAtual.equals(usuario.getId())) {
-                throw new SolicitanteBusinessException("Este email ja existe");
+                throw new SolicitanteBusinessException("Já existe um usuário cadastrado com este e-mail.");
             }
         });
     }
@@ -132,5 +112,3 @@ public class SolicitanteService {
         return valor == null ? null : valor.trim();
     }
 }
-
-
