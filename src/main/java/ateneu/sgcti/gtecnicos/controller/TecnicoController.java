@@ -20,34 +20,38 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tecnicos")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class TecnicoController {
 
     private final TecnicoService tecnicoService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','TECNICO')")
     public List<TecnicoResponse> listar() {
         return tecnicoService.listarTodos();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public TecnicoResponse buscarPorId(@PathVariable Integer id) {
         return tecnicoService.buscarPorId(id);
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TecnicoResponse> cadastrar(@Valid @RequestBody TecnicoRequest request) {
         TecnicoResponse response = tecnicoService.cadastrar(request);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public TecnicoResponse atualizar(@PathVariable Integer id, @Valid @RequestBody TecnicoRequest request) {
         return tecnicoService.atualizar(id, request);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> excluir(@PathVariable Integer id) {
         tecnicoService.excluir(id);
         return ResponseEntity.noContent().build();
