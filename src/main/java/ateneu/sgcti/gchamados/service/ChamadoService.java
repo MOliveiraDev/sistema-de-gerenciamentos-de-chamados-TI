@@ -50,6 +50,8 @@ public class ChamadoService {
         if (usuarioLogado.getRole() == Role.SOLICITANTE) {
             validarFiltrosPermitidosParaSolicitante(prioridade, tecnicoId, solicitanteId);
             solicitanteId = obterSolicitanteIdDoUsuario(usuarioLogado.getId());
+        } else if (usuarioLogado.getRole() == Role.TECNICO) {
+            validarFiltrosPermitidosParaTecnico(prioridade, tecnicoId, solicitanteId);
         }
 
         return chamadoRepository.buscarComFiltros(status, prioridade, tecnicoId, solicitanteId)
@@ -82,6 +84,8 @@ public class ChamadoService {
 
             solicitante = buscarSolicitanteOuFalha(solicitanteIdLogado);
             tecnico = null;
+        } else if (usuarioLogado.getRole() == Role.TECNICO) {
+            throw new AccessDeniedException("Técnico não pode registrar chamados.");
         } else {
             solicitante = buscarSolicitanteOuFalha(request.solicitanteId());
             tecnico = request.tecnicoId() == null ? null : buscarTecnicoOuFalha(request.tecnicoId());
@@ -249,6 +253,14 @@ public class ChamadoService {
                                                           Integer solicitanteId) {
         if (prioridade != null || tecnicoId != null || solicitanteId != null) {
             throw new AccessDeniedException("Solicitante só pode filtrar chamados por status.");
+        }
+    }
+
+    private void validarFiltrosPermitidosParaTecnico(PrioridadeChamado prioridade,
+                                                      Integer tecnicoId,
+                                                      Integer solicitanteId) {
+        if (prioridade != null || tecnicoId != null || solicitanteId != null) {
+            throw new AccessDeniedException("Técnico só pode filtrar chamados por status.");
         }
     }
 
