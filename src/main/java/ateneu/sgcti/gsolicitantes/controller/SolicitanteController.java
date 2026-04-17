@@ -20,34 +20,38 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/solicitantes/v1")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class SolicitanteController {
 
     private final SolicitanteService solicitanteService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','TECNICO')")
     public List<SolicitanteResponse> listar() {
         return solicitanteService.listarTodos();
     }
 
     @GetMapping("/{id}/buscar")
+    @PreAuthorize("hasRole('ADMIN')")
     public SolicitanteResponse buscarPorId(@PathVariable Integer id) {
         return solicitanteService.buscarPorId(id);
     }
 
     @PostMapping("/cadastrar")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SolicitanteResponse> cadastrar(@Valid @RequestBody SolicitanteRequest request) {
         SolicitanteResponse response = solicitanteService.cadastrar(request);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}/atualizar")
+    @PreAuthorize("hasRole('ADMIN')")
     public SolicitanteResponse atualizar(@PathVariable Integer id, @Valid @RequestBody SolicitanteRequest request) {
         return solicitanteService.atualizar(id, request);
     }
 
     @DeleteMapping("/{id}/deletar")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> excluir(@PathVariable Integer id) {
         solicitanteService.excluir(id);
         return ResponseEntity.noContent().build();
