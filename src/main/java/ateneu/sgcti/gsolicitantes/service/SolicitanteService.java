@@ -1,6 +1,7 @@
 package ateneu.sgcti.gsolicitantes.service;
 
 import ateneu.sgcti.auth.entity.UsuarioEntity;
+import ateneu.sgcti.auth.enums.Role;
 import ateneu.sgcti.auth.repository.UsuarioRepository;
 import ateneu.sgcti.gchamados.repository.ChamadoRepository;
 import ateneu.sgcti.gsolicitantes.dto.SolicitanteRequest;
@@ -12,6 +13,7 @@ import ateneu.sgcti.gsolicitantes.repository.SolicitanteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -24,6 +26,7 @@ public class SolicitanteService {
     private final SolicitanteRepository solicitanteRepository;
     private final UsuarioRepository usuarioRepository;
     private final ChamadoRepository chamadoRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public List<SolicitanteResponse> listarTodos() {
@@ -43,7 +46,8 @@ public class SolicitanteService {
         UsuarioEntity usuario = new UsuarioEntity();
         usuario.setNome(normalizar(request.nome()));
         usuario.setEmail(normalizar(request.email()));
-        usuario.setSenha(normalizar(request.senha()));
+        usuario.setSenha(passwordEncoder.encode(normalizar(request.senha())));
+        usuario.setRole(Role.SOLICITANTE);
         usuario = usuarioRepository.save(usuario);
 
         SolicitanteEntity solicitante = new SolicitanteEntity();
@@ -63,7 +67,7 @@ public class SolicitanteService {
         usuario.setNome(normalizar(request.nome()));
         usuario.setEmail(normalizar(request.email()));
         if (StringUtils.hasText(request.senha())) {
-            usuario.setSenha(normalizar(request.senha()));
+            usuario.setSenha(passwordEncoder.encode(normalizar(request.senha())));
         }
         usuarioRepository.save(usuario);
 

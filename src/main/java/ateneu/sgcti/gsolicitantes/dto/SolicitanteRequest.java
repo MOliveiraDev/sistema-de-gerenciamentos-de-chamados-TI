@@ -14,7 +14,7 @@ public record SolicitanteRequest(
         String email,
 
         @NotBlank(message = "Senha é obrigatória")
-        @Size(min = 3, max = 45, message = "Senha deve ter entre 3 e 45 caracteres")
+        @Size(min = 6, max = 255, message = "Senha deve ter entre 6 e 255 caracteres")
         String senha,
 
         @NotBlank(message = "Setor é obrigatório")
