@@ -1,7 +1,10 @@
 package ateneu.sgcti.gchamados.relatorios.service;
 
+import ateneu.sgcti.gchamados.entity.ChamadoEntity;
+import ateneu.sgcti.gchamados.enums.PrioridadeChamado;
 import ateneu.sgcti.gchamados.exception.ChamadoBusinessException;
 import ateneu.sgcti.gchamados.enums.StatusChamado;
+import ateneu.sgcti.gchamados.relatorios.dto.RelatorioPdfFiltro;
 import ateneu.sgcti.gchamados.relatorios.dto.RelatorioPorPeriodoResponse;
 import ateneu.sgcti.gchamados.relatorios.dto.RelatorioPorStatusResponse;
 import ateneu.sgcti.gchamados.relatorios.dto.RelatorioPorTecnicoResponse;
@@ -21,6 +24,7 @@ import java.util.List;
 public class ChamadoRelatorioService {
 
     private final ChamadoRelatorioRepository chamadoRelatorioRepository;
+    private final ChamadoPdfGenerator chamadoPdfGenerator;
 
     public RelatorioPorPeriodoResponse relatorioPorPeriodo(LocalDate inicio, LocalDate fim) {
         if (inicio.isAfter(fim)) {
@@ -52,6 +56,32 @@ public class ChamadoRelatorioService {
                     return new RelatorioPorTecnicoResponse(tecnicoId, nomeTecnico, total);
                 })
                 .toList();
+    }
+
+    public byte[] exportarRelatorioPdf(StatusChamado status,
+                                       PrioridadeChamado prioridade,
+                                       Integer tecnicoId,
+                                       Integer solicitanteId,
+                                       LocalDate inicio,
+                                       LocalDate fim) {
+        if (inicio != null && fim != null && inicio.isAfter(fim)) {
+            throw new ChamadoBusinessException("A data inicial não pode ser maior que a data final.");
+        }
+
+        LocalDateTime inicioPeriodo = inicio == null ? null : inicio.atStartOfDay();
+        LocalDateTime fimPeriodo = fim == null ? null : fim.atTime(LocalTime.MAX);
+
+        List<ChamadoEntity> chamados = chamadoRelatorioRepository.buscarParaRelatorioPdf(
+                status,
+                prioridade,
+                tecnicoId,
+                solicitanteId,
+                inicioPeriodo,
+                fimPeriodo
+        );
+
+        RelatorioPdfFiltro filtro = new RelatorioPdfFiltro(status, prioridade, tecnicoId, solicitanteId, inicio, fim);
+        return chamadoPdfGenerator.gerarRelatorioChamadosPdf(chamados, filtro);
     }
 }
 
