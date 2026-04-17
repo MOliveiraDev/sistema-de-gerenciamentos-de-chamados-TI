@@ -1,5 +1,6 @@
 package ateneu.sgcti.gchamados.service;
 
+import ateneu.sgcti.auth.enums.Role;
 import ateneu.sgcti.gchamados.dto.AtribuirTecnicoRequest;
 import ateneu.sgcti.gchamados.dto.AtualizarStatusRequest;
 import ateneu.sgcti.gchamados.dto.ChamadoHistoricoResponse;
@@ -20,7 +21,10 @@ import ateneu.sgcti.gsolicitantes.repository.SolicitanteRepository;
 import ateneu.sgcti.gtecnicos.entity.TecnicoEntity;
 import ateneu.sgcti.gtecnicos.exception.TecnicoNotFoundException;
 import ateneu.sgcti.gtecnicos.repository.TecnicoRepository;
+import ateneu.sgcti.shared.security.UsuarioPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +46,12 @@ public class ChamadoService {
                                         PrioridadeChamado prioridade,
                                         Integer tecnicoId,
                                         Integer solicitanteId) {
+        UsuarioPrincipal usuarioLogado = obterUsuarioLogado();
+        if (usuarioLogado.getRole() == Role.SOLICITANTE) {
+            validarFiltrosPermitidosParaSolicitante(prioridade, tecnicoId, solicitanteId);
+            solicitanteId = obterSolicitanteIdDoUsuario(usuarioLogado.getId());
+        }
+
         return chamadoRepository.buscarComFiltros(status, prioridade, tecnicoId, solicitanteId)
                 .stream()
                 .map(this::toResponse)
@@ -50,12 +60,32 @@ public class ChamadoService {
 
     @Transactional(readOnly = true)
     public ChamadoResponse buscarPorId(Integer id) {
-        return toResponse(buscarEntidadeOuFalha(id));
+        ChamadoEntity chamado = buscarEntidadeOuFalha(id);
+        validarAcessoSolicitanteAoChamado(chamado);
+        return toResponse(chamado);
     }
 
-    public ChamadoResponse cadastrar(ChamadoRequest request) {
-        SolicitanteEntity solicitante = buscarSolicitanteOuFalha(request.solicitanteId());
-        TecnicoEntity tecnico = request.tecnicoId() == null ? null : buscarTecnicoOuFalha(request.tecnicoId());
+    public ChamadoResponse registrar(ChamadoRequest request) {
+        UsuarioPrincipal usuarioLogado = obterUsuarioLogado();
+
+        SolicitanteEntity solicitante;
+        TecnicoEntity tecnico;
+
+        if (usuarioLogado.getRole() == Role.SOLICITANTE) {
+            Integer solicitanteIdLogado = obterSolicitanteIdDoUsuario(usuarioLogado.getId());
+            if (!solicitanteIdLogado.equals(request.solicitanteId())) {
+                throw new AccessDeniedException("Solicitante só pode registrar chamados para si mesmo.");
+            }
+            if (request.tecnicoId() != null) {
+                throw new AccessDeniedException("Solicitante não pode atribuir técnico no cadastro do chamado.");
+            }
+
+            solicitante = buscarSolicitanteOuFalha(solicitanteIdLogado);
+            tecnico = null;
+        } else {
+            solicitante = buscarSolicitanteOuFalha(request.solicitanteId());
+            tecnico = request.tecnicoId() == null ? null : buscarTecnicoOuFalha(request.tecnicoId());
+        }
 
         ChamadoEntity chamado = new ChamadoEntity();
         chamado.setTitulo(normalizar(request.titulo()));
@@ -176,7 +206,8 @@ public class ChamadoService {
 
     @Transactional(readOnly = true)
     public List<ChamadoHistoricoResponse> listarHistorico(Integer chamadoId) {
-        buscarEntidadeOuFalha(chamadoId);
+        ChamadoEntity chamado = buscarEntidadeOuFalha(chamadoId);
+        validarAcessoSolicitanteAoChamado(chamado);
 
         return chamadoHistoricoRepository.findByChamado_IdOrderByDataEventoDesc(chamadoId)
                 .stream()
@@ -199,6 +230,45 @@ public class ChamadoService {
         if (!transicaoValida) {
             throw new ChamadoBusinessException("Transição de status inválida de " + atual + " para " + novo + ".");
         }
+    }
+
+    private void validarAcessoSolicitanteAoChamado(ChamadoEntity chamado) {
+        UsuarioPrincipal usuarioLogado = obterUsuarioLogado();
+        if (usuarioLogado.getRole() != Role.SOLICITANTE) {
+            return;
+        }
+
+        Integer solicitanteIdLogado = obterSolicitanteIdDoUsuario(usuarioLogado.getId());
+        if (!chamado.getSolicitanteEntity().getId().equals(solicitanteIdLogado)) {
+            throw new AccessDeniedException("Solicitante só pode visualizar os próprios chamados.");
+        }
+    }
+
+    private void validarFiltrosPermitidosParaSolicitante(PrioridadeChamado prioridade,
+                                                          Integer tecnicoId,
+                                                          Integer solicitanteId) {
+        if (prioridade != null || tecnicoId != null || solicitanteId != null) {
+            throw new AccessDeniedException("Solicitante só pode filtrar chamados por status.");
+        }
+    }
+
+    private UsuarioPrincipal obterUsuarioLogado() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new AccessDeniedException("Usuário não autenticado.");
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof UsuarioPrincipal usuarioPrincipal)) {
+            throw new AccessDeniedException("Usuário não autenticado.");
+        }
+        return usuarioPrincipal;
+    }
+
+    private Integer obterSolicitanteIdDoUsuario(Integer usuarioId) {
+        return solicitanteRepository.findByUsuarioEntity_Id(usuarioId)
+                .map(SolicitanteEntity::getId)
+                .orElseThrow(() -> new AccessDeniedException("Usuário solicitante inválido."));
     }
 
     private SolicitanteEntity buscarSolicitanteOuFalha(Integer solicitanteId) {
