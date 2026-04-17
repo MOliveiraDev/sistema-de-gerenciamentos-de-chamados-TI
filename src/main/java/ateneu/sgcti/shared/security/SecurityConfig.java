@@ -55,8 +55,9 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService,
-                                                            UsuarioDetailsService usuarioDetailsService) {
-        return new JwtAuthenticationFilter(jwtService, usuarioDetailsService);
+                                                            UsuarioDetailsService usuarioDetailsService,
+                                                            TokenBlacklistService tokenBlacklistService) {
+        return new JwtAuthenticationFilter(jwtService, usuarioDetailsService, tokenBlacklistService);
     }
 
     @Bean
