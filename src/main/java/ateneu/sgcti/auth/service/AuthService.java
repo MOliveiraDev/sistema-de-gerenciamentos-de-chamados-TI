@@ -5,6 +5,7 @@ import ateneu.sgcti.auth.dto.LoginRequest;
 import ateneu.sgcti.auth.dto.UsuarioAutenticadoResponse;
 import ateneu.sgcti.auth.exception.AuthUnauthorizedException;
 import ateneu.sgcti.shared.security.JwtService;
+import ateneu.sgcti.shared.security.TokenBlacklistService;
 import ateneu.sgcti.shared.security.UsuarioPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,7 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     public AuthResponse login(LoginRequest request) {
         try {
@@ -43,7 +45,8 @@ public class AuthService {
         }
     }
 
-    public void logout() {
+    public void logout(String token) {
+        tokenBlacklistService.revoke(token);
         SecurityContextHolder.clearContext();
     }
 

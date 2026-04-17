@@ -4,6 +4,7 @@ import ateneu.sgcti.auth.dto.AuthResponse;
 import ateneu.sgcti.auth.dto.LoginRequest;
 import ateneu.sgcti.auth.dto.UsuarioAutenticadoResponse;
 import ateneu.sgcti.auth.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +29,9 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout() {
-        authService.logout();
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7);
+        authService.logout(token);
         return ResponseEntity.noContent().build();
     }
 
