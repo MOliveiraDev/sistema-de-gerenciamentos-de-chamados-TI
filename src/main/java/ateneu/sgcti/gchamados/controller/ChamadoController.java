@@ -45,13 +45,13 @@ public class ChamadoController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','TECNICO','SOLICITANTE')")
+    @PreAuthorize("hasAnyRole('ADMIN','SOLICITANTE')")
     public ChamadoResponse buscarPorId(@PathVariable Integer id) {
         return chamadoService.buscarPorId(id);
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','TECNICO','SOLICITANTE')")
+    @PreAuthorize("hasAnyRole('ADMIN','SOLICITANTE')")
     public ResponseEntity<ChamadoResponse> registrar(@Valid @RequestBody ChamadoRequest request) {
         return ResponseEntity.ok(chamadoService.registrar(request));
     }
