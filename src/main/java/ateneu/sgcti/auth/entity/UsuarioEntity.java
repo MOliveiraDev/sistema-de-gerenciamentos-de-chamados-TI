@@ -1,5 +1,6 @@
 package ateneu.sgcti.auth.entity;
 
+import ateneu.sgcti.auth.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,5 +33,8 @@ public class UsuarioEntity {
 
     @Column(name = "senha", nullable = false, length = 45)
     private String senha;
+
+    @Column(name = "role", nullable = false, length = 45)
+    private Role role;
 }
 
