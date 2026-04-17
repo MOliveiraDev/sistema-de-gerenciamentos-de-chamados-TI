@@ -1,9 +1,13 @@
 package ateneu.sgcti.gchamados.entity;
 
+import ateneu.sgcti.gchamados.enums.PrioridadeChamado;
+import ateneu.sgcti.gchamados.enums.StatusChamado;
 import ateneu.sgcti.gsolicitantes.entity.SolicitanteEntity;
 import ateneu.sgcti.gtecnicos.entity.TecnicoEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,7 +38,7 @@ public class ChamadoEntity {
     @Column(name = "titulo", nullable = false, length = 45)
     private String titulo;
 
-    @Column(name = "descricao", nullable = false, length = 45)
+    @Column(name = "descricao", nullable = false, length = 255)
     private String descricao;
 
     @Column(name = "data_abertura", nullable = false)
@@ -42,6 +46,9 @@ public class ChamadoEntity {
 
     @Column(name = "data_fechamento")
     private LocalDateTime dataFechamento;
+
+    @Column(name = "data_atualizacao", nullable = false)
+    private LocalDateTime dataAtualizacao;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tecnico_id")
@@ -51,10 +58,12 @@ public class ChamadoEntity {
     @JoinColumn(name = "solicitante_id", nullable = false)
     private SolicitanteEntity solicitanteEntity;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "prioridade", nullable = false, length = 45)
-    private String prioridade;
+    private PrioridadeChamado prioridade;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 45)
-    private String status;
+    private StatusChamado status;
 }
 
