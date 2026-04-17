@@ -3,6 +3,8 @@ package ateneu.sgcti.auth.entity;
 import ateneu.sgcti.auth.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,9 +33,10 @@ public class UsuarioEntity {
     @Column(name = "email", nullable = false, length = 45, unique = true)
     private String email;
 
-    @Column(name = "senha", nullable = false, length = 45)
+    @Column(name = "senha", nullable = false, length = 255)
     private String senha;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 45)
     private Role role;
 }
