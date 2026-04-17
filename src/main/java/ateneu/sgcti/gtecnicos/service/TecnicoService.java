@@ -1,6 +1,7 @@
 package ateneu.sgcti.gtecnicos.service;
 
 import ateneu.sgcti.auth.entity.UsuarioEntity;
+import ateneu.sgcti.auth.enums.Role;
 import ateneu.sgcti.auth.repository.UsuarioRepository;
 import ateneu.sgcti.gchamados.repository.ChamadoRepository;
 import ateneu.sgcti.gsolicitantes.repository.SolicitanteRepository;
@@ -13,6 +14,7 @@ import ateneu.sgcti.gtecnicos.repository.TecnicoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -26,6 +28,7 @@ public class TecnicoService {
     private final UsuarioRepository usuarioRepository;
     private final SolicitanteRepository solicitanteRepository;
     private final ChamadoRepository chamadoRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public List<TecnicoResponse> listarTodos() {
@@ -46,7 +49,8 @@ public class TecnicoService {
         UsuarioEntity usuario = new UsuarioEntity();
         usuario.setNome(normalizar(request.nome()));
         usuario.setEmail(normalizar(request.email()));
-        usuario.setSenha(normalizar(request.senha()));
+        usuario.setSenha(passwordEncoder.encode(normalizar(request.senha())));
+        usuario.setRole(Role.TECNICO);
         usuario = usuarioRepository.save(usuario);
 
         TecnicoEntity tecnico = new TecnicoEntity();
@@ -68,7 +72,7 @@ public class TecnicoService {
         usuario.setNome(normalizar(request.nome()));
         usuario.setEmail(normalizar(request.email()));
         if (StringUtils.hasText(request.senha())) {
-            usuario.setSenha(normalizar(request.senha()));
+            usuario.setSenha(passwordEncoder.encode(normalizar(request.senha())));
         }
         usuarioRepository.save(usuario);
 
