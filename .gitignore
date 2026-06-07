@@ -32,8 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 
-### Copilot ###
-.copilot/
+### SPECIFY ###
+.spec/
 
 ### .env ###
 .env
