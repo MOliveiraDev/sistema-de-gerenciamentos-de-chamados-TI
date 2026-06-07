@@ -28,3 +28,6 @@ server:
   tomcat:
     connection-timeout: 20000
   port: 8080
+
+cookie:
+  secure: ${COOKIE_SECURE}
