@@ -28,7 +28,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -45,7 +47,9 @@ public class ChamadoService {
     public List<ChamadoResponse> listar(StatusChamado status,
                                         PrioridadeChamado prioridade,
                                         Integer tecnicoId,
-                                        Integer solicitanteId) {
+                                        Integer solicitanteId,
+                                        LocalDate inicio,
+                                        LocalDate fim) {
         UsuarioPrincipal usuarioLogado = obterUsuarioLogado();
         if (usuarioLogado.getRole() == Role.SOLICITANTE) {
             validarFiltrosPermitidosParaSolicitante(prioridade, tecnicoId, solicitanteId);
@@ -54,7 +58,10 @@ public class ChamadoService {
             validarFiltrosPermitidosParaTecnico(prioridade, tecnicoId, solicitanteId);
         }
 
-        return chamadoRepository.buscarComFiltros(status, prioridade, tecnicoId, solicitanteId)
+        LocalDateTime inicioDt = inicio == null ? null : inicio.atStartOfDay();
+        LocalDateTime fimDt    = fim    == null ? null : fim.atTime(LocalTime.MAX);
+
+        return chamadoRepository.buscarComFiltros(status, prioridade, tecnicoId, solicitanteId, inicioDt, fimDt)
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -133,6 +140,9 @@ public class ChamadoService {
 
     public void excluir(Integer id) {
         ChamadoEntity chamado = buscarEntidadeOuFalha(id);
+        if (chamado.getStatus() == StatusChamado.RESOLVIDO || chamado.getStatus() == StatusChamado.FECHADO) {
+            throw new ChamadoBusinessException("Chamados resolvidos ou fechados não podem ser excluídos.");
+        }
         chamadoHistoricoRepository.deleteByChamado_Id(id);
         chamadoRepository.delete(chamado);
     }
@@ -225,10 +235,10 @@ public class ChamadoService {
         }
 
         boolean transicaoValida = switch (atual) {
-            case ABERTO -> novo == StatusChamado.EM_ATENDIMENTO;
-            case EM_ATENDIMENTO -> novo == StatusChamado.RESOLVIDO;
-            case RESOLVIDO -> novo == StatusChamado.FECHADO;
-            case FECHADO -> false;
+            case ABERTO         -> novo == StatusChamado.EM_ATENDIMENTO || novo == StatusChamado.CANCELADO;
+            case EM_ATENDIMENTO -> novo == StatusChamado.RESOLVIDO      || novo == StatusChamado.CANCELADO;
+            case RESOLVIDO      -> novo == StatusChamado.FECHADO;
+            case FECHADO, CANCELADO -> false;
         };
 
         if (!transicaoValida) {

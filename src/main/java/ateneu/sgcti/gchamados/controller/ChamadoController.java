@@ -24,6 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -39,9 +42,11 @@ public class ChamadoController {
             @RequestParam(required = false) StatusChamado status,
             @RequestParam(required = false) PrioridadeChamado prioridade,
             @RequestParam(required = false) Integer tecnicoId,
-            @RequestParam(required = false) Integer solicitanteId
+            @RequestParam(required = false) Integer solicitanteId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim
     ) {
-        return chamadoService.listar(status, prioridade, tecnicoId, solicitanteId);
+        return chamadoService.listar(status, prioridade, tecnicoId, solicitanteId, inicio, fim);
     }
 
     @GetMapping("/{id}")

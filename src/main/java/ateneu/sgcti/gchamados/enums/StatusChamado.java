@@ -4,6 +4,7 @@ public enum StatusChamado {
     ABERTO,
     EM_ATENDIMENTO,
     RESOLVIDO,
-    FECHADO
+    FECHADO,
+    CANCELADO
 }
 

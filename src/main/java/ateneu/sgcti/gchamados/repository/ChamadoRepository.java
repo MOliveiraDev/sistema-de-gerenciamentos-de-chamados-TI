@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChamadoRepository extends JpaRepository<ChamadoEntity, Integer> {
@@ -29,12 +30,16 @@ public interface ChamadoRepository extends JpaRepository<ChamadoEntity, Integer>
               and (:prioridade is null or c.prioridade = :prioridade)
               and (:tecnicoId is null or c.tecnicoEntity.id = :tecnicoId)
               and (:solicitanteId is null or c.solicitanteEntity.id = :solicitanteId)
+              and (:inicio is null or c.dataAbertura >= :inicio)
+              and (:fim is null or c.dataAbertura <= :fim)
             """)
     List<ChamadoEntity> buscarComFiltros(
             @Param("status") StatusChamado status,
             @Param("prioridade") PrioridadeChamado prioridade,
             @Param("tecnicoId") Integer tecnicoId,
-            @Param("solicitanteId") Integer solicitanteId
+            @Param("solicitanteId") Integer solicitanteId,
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim
     );
 
 }
