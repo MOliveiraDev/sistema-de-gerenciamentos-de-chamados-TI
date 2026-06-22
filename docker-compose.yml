@@ -1,0 +1,32 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: sgcti_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sgcti_banco.sql:/docker-entrypoint-initdb.d/sgcti_banco.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+
+  app:
+    build: .
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: jdbc:mysql://db:3306/sgcti_db
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
