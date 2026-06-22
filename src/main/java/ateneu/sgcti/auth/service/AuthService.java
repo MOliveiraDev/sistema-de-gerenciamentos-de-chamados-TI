@@ -5,7 +5,9 @@ import ateneu.sgcti.auth.dto.LoginRequest;
 import ateneu.sgcti.auth.dto.UsuarioAutenticadoResponse;
 import ateneu.sgcti.auth.enums.Role;
 import ateneu.sgcti.auth.exception.AuthUnauthorizedException;
+import ateneu.sgcti.gsolicitantes.entity.SolicitanteEntity;
 import ateneu.sgcti.gsolicitantes.repository.SolicitanteRepository;
+import ateneu.sgcti.gtecnicos.entity.TecnicoEntity;
 import ateneu.sgcti.gtecnicos.repository.TecnicoRepository;
 import ateneu.sgcti.shared.security.JwtService;
 import ateneu.sgcti.shared.security.TokenBlacklistService;
@@ -65,11 +67,11 @@ public class AuthService {
 
         if (principal.getRole() == Role.SOLICITANTE) {
             solicitanteId = solicitanteRepository.findByUsuarioEntity_Id(principal.getId())
-                    .map(s -> s.getId())
+                    .map(SolicitanteEntity::getId)
                     .orElse(null);
         } else if (principal.getRole() == Role.TECNICO) {
             tecnicoId = tecnicoRepository.findByUsuarioEntity_Id(principal.getId())
-                    .map(t -> t.getId())
+                    .map(TecnicoEntity::getId)
                     .orElse(null);
         }
 
