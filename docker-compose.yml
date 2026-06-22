@@ -4,9 +4,9 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
-      MYSQL_DATABASE: sgcti_db
+      MYSQL_DATABASE: sgcti
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
       - ./sgcti_banco.sql:/docker-entrypoint-initdb.d/sgcti_banco.sql
@@ -23,7 +23,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_HOST: jdbc:mysql://db:3306/sgcti_db
+      DATABASE_HOST: jdbc:mysql://db:3306/sgcti
     depends_on:
       db:
         condition: service_healthy
