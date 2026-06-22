@@ -3,7 +3,10 @@ package ateneu.sgcti.auth.service;
 import ateneu.sgcti.auth.dto.AuthResponse;
 import ateneu.sgcti.auth.dto.LoginRequest;
 import ateneu.sgcti.auth.dto.UsuarioAutenticadoResponse;
+import ateneu.sgcti.auth.enums.Role;
 import ateneu.sgcti.auth.exception.AuthUnauthorizedException;
+import ateneu.sgcti.gsolicitantes.repository.SolicitanteRepository;
+import ateneu.sgcti.gtecnicos.repository.TecnicoRepository;
 import ateneu.sgcti.shared.security.JwtService;
 import ateneu.sgcti.shared.security.TokenBlacklistService;
 import ateneu.sgcti.shared.security.UsuarioPrincipal;
@@ -21,6 +24,8 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final TokenBlacklistService tokenBlacklistService;
+    private final SolicitanteRepository solicitanteRepository;
+    private final TecnicoRepository tecnicoRepository;
 
     public AuthResponse login(LoginRequest request) {
         try {
@@ -55,12 +60,26 @@ public class AuthService {
             throw new AuthUnauthorizedException("Usuário não autenticado.");
         }
 
+        Integer solicitanteId = null;
+        Integer tecnicoId = null;
+
+        if (principal.getRole() == Role.SOLICITANTE) {
+            solicitanteId = solicitanteRepository.findByUsuarioEntity_Id(principal.getId())
+                    .map(s -> s.getId())
+                    .orElse(null);
+        } else if (principal.getRole() == Role.TECNICO) {
+            tecnicoId = tecnicoRepository.findByUsuarioEntity_Id(principal.getId())
+                    .map(t -> t.getId())
+                    .orElse(null);
+        }
+
         return new UsuarioAutenticadoResponse(
+                principal.getId(),
                 principal.getNome(),
                 principal.getUsername(),
-                principal.getRole()
+                principal.getRole(),
+                solicitanteId,
+                tecnicoId
         );
     }
-
 }
-
