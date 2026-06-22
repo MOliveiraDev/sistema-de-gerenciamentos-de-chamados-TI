@@ -50,7 +50,7 @@ public class ChamadoController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','SOLICITANTE')")
+    @PreAuthorize("hasAnyRole('ADMIN','TECNICO','SOLICITANTE')")
     public ChamadoResponse buscarPorId(@PathVariable Integer id) {
         return chamadoService.buscarPorId(id);
     }
