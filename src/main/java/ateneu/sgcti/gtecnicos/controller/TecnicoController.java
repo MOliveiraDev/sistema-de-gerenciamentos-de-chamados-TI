@@ -2,6 +2,7 @@ package ateneu.sgcti.gtecnicos.controller;
 
 import ateneu.sgcti.gtecnicos.dto.TecnicoRequest;
 import ateneu.sgcti.gtecnicos.dto.TecnicoResponse;
+import ateneu.sgcti.gtecnicos.dto.TecnicoUpdateRequest;
 import ateneu.sgcti.gtecnicos.service.TecnicoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class TecnicoController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public TecnicoResponse atualizar(@PathVariable Integer id, @Valid @RequestBody TecnicoRequest request) {
+    public TecnicoResponse atualizar(@PathVariable Integer id, @Valid @RequestBody TecnicoUpdateRequest request) {
         return tecnicoService.atualizar(id, request);
     }
 

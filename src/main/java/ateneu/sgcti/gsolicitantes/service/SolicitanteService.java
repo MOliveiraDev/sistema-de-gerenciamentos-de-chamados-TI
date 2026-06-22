@@ -6,6 +6,7 @@ import ateneu.sgcti.auth.repository.UsuarioRepository;
 import ateneu.sgcti.gchamados.repository.ChamadoRepository;
 import ateneu.sgcti.gsolicitantes.dto.SolicitanteRequest;
 import ateneu.sgcti.gsolicitantes.dto.SolicitanteResponse;
+import ateneu.sgcti.gsolicitantes.dto.SolicitanteUpdateRequest;
 import ateneu.sgcti.gsolicitantes.entity.SolicitanteEntity;
 import ateneu.sgcti.gsolicitantes.exception.SolicitanteBusinessException;
 import ateneu.sgcti.gsolicitantes.exception.SolicitanteNotFoundException;
@@ -58,7 +59,7 @@ public class SolicitanteService {
         return toResponse(solicitanteRepository.save(solicitante));
     }
 
-    public SolicitanteResponse atualizar(Integer id, SolicitanteRequest request) {
+    public SolicitanteResponse atualizar(Integer id, SolicitanteUpdateRequest request) {
         SolicitanteEntity solicitante = buscarEntidadeOuFalha(id);
         UsuarioEntity usuario = solicitante.getUsuarioEntity();
 

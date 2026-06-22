@@ -2,6 +2,7 @@ package ateneu.sgcti.gsolicitantes.controller;
 
 import ateneu.sgcti.gsolicitantes.dto.SolicitanteRequest;
 import ateneu.sgcti.gsolicitantes.dto.SolicitanteResponse;
+import ateneu.sgcti.gsolicitantes.dto.SolicitanteUpdateRequest;
 import ateneu.sgcti.gsolicitantes.service.SolicitanteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class SolicitanteController {
 
     @PutMapping("/{id}/atualizar")
     @PreAuthorize("hasRole('ADMIN')")
-    public SolicitanteResponse atualizar(@PathVariable Integer id, @Valid @RequestBody SolicitanteRequest request) {
+    public SolicitanteResponse atualizar(@PathVariable Integer id, @Valid @RequestBody SolicitanteUpdateRequest request) {
         return solicitanteService.atualizar(id, request);
     }
 

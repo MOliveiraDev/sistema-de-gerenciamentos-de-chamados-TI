@@ -7,6 +7,7 @@ import ateneu.sgcti.gchamados.repository.ChamadoRepository;
 import ateneu.sgcti.gsolicitantes.repository.SolicitanteRepository;
 import ateneu.sgcti.gtecnicos.dto.TecnicoRequest;
 import ateneu.sgcti.gtecnicos.dto.TecnicoResponse;
+import ateneu.sgcti.gtecnicos.dto.TecnicoUpdateRequest;
 import ateneu.sgcti.gtecnicos.entity.TecnicoEntity;
 import ateneu.sgcti.gtecnicos.exception.TecnicoBusinessException;
 import ateneu.sgcti.gtecnicos.exception.TecnicoNotFoundException;
@@ -62,7 +63,7 @@ public class TecnicoService {
         return toResponse(tecnicoRepository.save(tecnico));
     }
 
-    public TecnicoResponse atualizar(Integer id, TecnicoRequest request) {
+    public TecnicoResponse atualizar(Integer id, TecnicoUpdateRequest request) {
         TecnicoEntity tecnico = buscarEntidadeOuFalha(id);
         UsuarioEntity usuario = tecnico.getUsuarioEntity();
 
